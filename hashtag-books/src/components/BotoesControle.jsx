@@ -1,4 +1,4 @@
-const BotoesControle =(props) => {
+const BotoesControle = (props) => {
     return <div className="caixa-botoes">
         <button onClick={props.retrocederFaixa}><i className="bi bi-skip-start"></i></button>
 

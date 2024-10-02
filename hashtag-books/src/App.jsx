@@ -1,12 +1,12 @@
 import { useState, useRef,useEffect } from 'react';
 import './App.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import brasCubasImg from './assets/bras_cubas.jpeg';
-import Capa from './Capa';
-import SeletorCapitulos from './SeletorCApitulos';
-import BotoesControle from './BotoesControle';
-import livro from './assets/capitulos/livro';
-import GerenciadorFaixa from './GerenciadorDeFaixa';
+import coverBook from './assets/bras_cubas/capa.jpeg';
+import Capa from './components/Capa';
+import SeletorCapitulos from './components/SeletorCapitulos';
+import BotoesControle from './components/BotoesControle';
+import tracks from './assets/bras_cubas/capitulos/addTrack';
+import GerenciadorFaixa from './components/GerenciadorDeFaixa';
 
 function App() {
   //let taTocando = false;
@@ -14,84 +14,75 @@ function App() {
   const [taTocando, definirTaTocando] = useState(false);
   const [faixaAtual, definiFaixaAtual] = useState(0);
   const tagAudio = useRef(null);
-
-  useEffect(() => {
-    if(taTocando){
-      tocarFaixa()
-    }
-  }, [
-    //listar o conjunto de informações secundarias
-    faixaAtual
-  ] )
-
+  
   const inform_livros = {
     nome:'Memórias Póstomas de Brás Cubas',
     autor:'Machado de Assis',
     capitulosTotal: 2,
-    capa: brasCubasImg,
-    capitulos: livro,
+    capa: coverBook,
+    capitulos: tracks,
     textoAlternativo: 'Capa do Livro Memórias Póstomas de Brás Cubas'
-
-  };
-//essa so pq vai pro usefect
-  function tocarFaixa() {
-    tagAudio.current.play()
-    definirTaTocando(true);
   };
 
-  const pausarfaixa = () => {
-    tagAudio.current.pause();
-    definirTaTocando(false);
-  };
+  useEffect(() => {
+    const isPlaying = taTocando ? "▶" : "❚❚"
+    const actualTrack = faixaAtual +1
+
+    document.title = `${isPlaying} ${inform_livros.nome} - Capítulo ${actualTrack}`
+
+  }, [taTocando, faixaAtual])
 
   const tocarOuPausarFaixa = () => {
-    if(taTocando){
-      pausarfaixa();
-    }else{
-      tocarFaixa();
+    if (taTocando) {
+      tagAudio.current.pause()
+      return definirTaTocando(false)
     }
+
+    tagAudio.current.play()
+    return definirTaTocando(true)
+
   };
   
   //botoes inteligente
   const avancarFaixa = () => {
-    if(inform_livros.capitulosTotal === faixaAtual +1){
-      definiFaixaAtual(0)
-    }else{
-      definiFaixaAtual(faixaAtual +1);
+    if (inform_livros.capitulosTotal === faixaAtual +1) {
+      return definiFaixaAtual(0)
     }
+
+    return definiFaixaAtual(faixaAtual+1)
   };
 
-  const retrocederFaixa = () =>{
-    if(faixaAtual ===0){
-      definiFaixaAtual(inform_livros.capitulosTotal -1)
-    }else{
-      definiFaixaAtual(faixaAtual -1)
+  const retrocederFaixa = () => {
+    if(faixaAtual === 0){
+      return definiFaixaAtual(inform_livros.capitulosTotal -1)
     }
 
+    return definiFaixaAtual(faixaAtual -1)
   }
 
   return (
     <>
-    {/* promisses */}
-    <Capa
-     imagemCapa={inform_livros.capa} 
-     textoAlternativo={inform_livros.textoAlternativo}/>
-
-    <SeletorCapitulos CapituloAtual={faixaAtual +1} />
-
-    <BotoesControle
-     taTocando={taTocando} definirTaTocando={definirTaTocando}
-     tocarOuPausarFaixa={tocarOuPausarFaixa} 
-     avancarFaixa={avancarFaixa}
-     retrocederFaixa={retrocederFaixa}
+      {/* promisses */}
+      <Capa
+      imagemCapa={inform_livros.capa} 
+      textoAlternativo={inform_livros.textoAlternativo}
       />
 
-    <GerenciadorFaixa 
-    faixa={inform_livros.capitulos[faixaAtual]} 
-    referencia={tagAudio} />
+      <SeletorCapitulos CapituloAtual={faixaAtual} />
 
+      <BotoesControle
+        taTocando={taTocando}
+        definirTaTocando={definirTaTocando}
+        tocarOuPausarFaixa={tocarOuPausarFaixa} 
+        avancarFaixa={avancarFaixa}
+        retrocederFaixa={retrocederFaixa}
+      />
+
+      <GerenciadorFaixa 
+        faixa={inform_livros.capitulos[faixaAtual]} 
+        referencia={tagAudio}
+      />
     </>
-
   )
 }
 
